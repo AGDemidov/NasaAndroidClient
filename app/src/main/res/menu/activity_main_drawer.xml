@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_apod"
+            android:icon="@drawable/ic_menu_round"
+            android:title="@string/menu_image_of_the_day">
+        </item>
+        <item
+            android:id="@+id/nav_neo"
+            android:icon="@drawable/ic_menu_round"
+            android:title="@string/menu_near_earth_objects" />
+    </group>
+</menu>

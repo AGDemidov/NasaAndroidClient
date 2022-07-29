@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_apod">
+
+    <fragment
+        android:id="@+id/nav_apod"
+        android:name="com.agdemidov.nasaclient.ui.apod.ApodsFragment"
+        android:label="@string/menu_image_of_the_day"
+        tools:layout="@layout/fragment_apod" />
+
+    <fragment
+        android:id="@+id/nav_neo"
+        android:name="com.agdemidov.nasaclient.ui.neo.NeoFragment"
+        android:label="@string/menu_near_earth_objects"
+        tools:layout="@layout/fragment_neo" />
+
+</navigation>
