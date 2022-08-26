@@ -3,6 +3,7 @@ package com.agdemidov.nasaclient.ui.neo
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.agdemidov.nasaclient.R
@@ -10,6 +11,8 @@ import com.agdemidov.nasaclient.databinding.NeoPageViewHolderBinding
 import com.agdemidov.nasaclient.models.NeoModel
 import com.agdemidov.nasaclient.utils.DateGetter.getToday
 import java.util.*
+import com.agdemidov.nasaclient.utils.DateGetter.getTomorrow
+import com.agdemidov.nasaclient.utils.DateGetter.getYesterday
 
 class NeoPagesAdapter(val context: Context, val action: OnTodayPageCreated) :
     RecyclerView.Adapter<NeoPagesAdapter.NeoPageViewHolder>() {
@@ -38,12 +41,38 @@ class NeoPagesAdapter(val context: Context, val action: OnTodayPageCreated) :
     }
 
     override fun onBindViewHolder(holder: NeoPageViewHolder, position: Int) {
-        holder.binding.neoDate.text =
-            context.resources.getString(R.string.neo_for_date, neoPagesMap[position].first)
+        val dayResId: Int = when (neoPagesMap[position].first) {
+            getYesterday() -> R.string.yesterday
+            getToday() -> R.string.today
+            getTomorrow() -> R.string.tomorrow
+            else -> R.string.date_is
+        }
 
+        holder.binding.neoDate.text =
+            context.resources.getString(dayResId, neoPagesMap[position].first)
         val neoDayAdapter = holder.binding.neoDayItems
         neoDayAdapter.layoutManager = LinearLayoutManager(context)
-        val neoDayPageAdapter = NeoDayPageAdapter()
+        val neoDayPageAdapter = NeoDayPageAdapter(
+            object : NeoDayPageAdapter.OnItemClicked {
+                override fun onClick(url: String) {
+                    findNavController(holder.binding.root).navigate(
+                        NeoFragmentDirections.actionNavNeoToNavNewWebPage(url)
+                    )
+                }
+
+                override fun allItemsExpanded(allItemsExpanded: Boolean) =
+                    if (allItemsExpanded) {
+                        holder.binding.expandAll.setText(context.getString(R.string.collapse_all))
+                    } else {
+                        holder.binding.expandAll.setText(context.getString(R.string.expand_all))
+                    }
+            }
+        )
+        holder.binding.expandAll.text = context.getString(R.string.expand_all)
+        holder.binding.expandAll.setOnClickListener {
+            neoDayPageAdapter.onExpandCollapseClicked()
+        }
+
         neoDayAdapter.adapter = neoDayPageAdapter
         neoDayPageAdapter.submitList(neoPagesMap[position].second)
         if (position == todayDateIndex) {

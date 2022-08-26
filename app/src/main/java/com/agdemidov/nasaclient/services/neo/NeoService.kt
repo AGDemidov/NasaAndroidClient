@@ -28,7 +28,6 @@ class NeoService private constructor(private val repository: NeoRepository) {
                 }
                 is ErrorResponse -> {
                     ErrorResponseProcessor.processError(apiResponse)
-                    response
                 }
             }
             return@withContext result

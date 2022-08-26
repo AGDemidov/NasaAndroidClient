@@ -5,22 +5,21 @@ import com.agdemidov.nasaclient.repositories.ApiResponse
 import com.agdemidov.nasaclient.repositories.NoNetworkResponse
 import com.agdemidov.nasaclient.repositories.apod.api.ApodApi
 import com.agdemidov.nasaclient.repositories.apod.dto.ApodDto
+import com.agdemidov.nasaclient.utils.Constants.PAGE_SIZE
 import com.agdemidov.nasaclient.utils.DateGetter.getDateWithOffset
-import com.agdemidov.nasaclient.utils.DateGetter.getToday
 import com.agdemidov.nasaclient.utils.NetworkManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+
 import retrofit2.awaitResponse
 
 class ApodRepository {
-    suspend fun fetchApodsList(): ApiResponse<List<ApodDto>> =
+    suspend fun fetchApodsList(page: Int): ApiResponse<List<ApodDto>> =
         try {
             if (!NetworkManager.isNetworkAvailable) {
                 NoNetworkResponse()
             } else {
                 val response = apodApiEndpoints.fetchApodsPage(
-                    startDate = getDateWithOffset(-61),
-                    endDate = getToday()
+                    startDate = getDateWithOffset(-PAGE_SIZE * (1 + page)),
+                    endDate = getDateWithOffset(-(PAGE_SIZE + 1) * page)
                 ).awaitResponse()
                 ApiResponse.createResponse(response)
             }

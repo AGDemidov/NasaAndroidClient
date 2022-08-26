@@ -8,5 +8,6 @@
         <!-- Customize your theme here. -->
         <item name="primaryTextColor">@color/white</item>
         <item name="secondaryTextColor">@color/light_grey</item>
+        <item name="neoPageTitleColor">@color/black_title</item>
     </style>
 </resources>

@@ -3,7 +3,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Nasa Client</string>
-    <string name="nav_header_subtitle">From Demidov AG</string>
+    <string name="nav_header_subtitle">based on free api</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
@@ -11,7 +11,21 @@
     <string name="menu_image_of_the_day">Image Of The Day</string>
     <string name="menu_tle">Tle</string>
     <string name="no_data">No Data</string>
-    <string name="neo_for_date">Date is %1$s</string>
     <string name="no_network">No network connection</string>
     <string name="positive_button_text">OK</string>
+    <string name="absolute_magnitude">Absolute Magnitude</string>
+    <string name="estimated_diameter">Estimated Diameter (meters)</string>
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+    <string name="open_neo_page">Open Neo Page</string>
+    <string name="potentially_hazardous_object">Is Hazardous</string>
+    <string name="hazardous_yes">Yes</string>
+    <string name="hazardous_no">No</string>
+    <string name="expand_all">Expand All</string>
+    <string name="collapse_all">Collapse All</string>
+    <string name="nasa_web_page">Nasa Web Page</string>
+    <string name="today">Today: %1$s</string>
+    <string name="yesterday">Yesterday: %1$s</string>
+    <string name="tomorrow">Tomorrow: %1$s</string>
+    <string name="date_is">Date is: %1$s</string>
 </resources>

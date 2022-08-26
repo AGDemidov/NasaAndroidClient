@@ -2,18 +2,23 @@ package com.agdemidov.nasaclient.ui.apod
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.TextView
+//import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.agdemidov.nasaclient.databinding.FragmentApodBinding
 import com.agdemidov.nasaclient.services.apod.ApodService
 import com.agdemidov.nasaclient.ui.BaseFragment
 import com.agdemidov.nasaclient.ui.ViewModelsFactory
+import com.agdemidov.nasaclient.utils.Constants.PAGE_SIZE
 import com.agdemidov.nasaclient.utils.Extensions.showView
 
 class ApodsFragment : BaseFragment<ApodsViewModel>() {
@@ -21,6 +26,8 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
     private var _binding: FragmentApodBinding? = null
     private val binding
         get() = _binding!!
+
+    private var isPageLoading = false
 
     override val viewModel: ApodsViewModel by viewModels {
         ViewModelsFactory(ApodService.instance)
@@ -46,6 +53,7 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
     private fun onFragmentStartEvent() {
         if (isFirstLaunch) {
             viewModel.fetchApodsList()
+            isPageLoading = true
             isFirstLaunch = false
         }
     }
@@ -61,16 +69,25 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
         val swipeRefresh = binding.swipeRefresh
         swipeRefresh.setProgressViewOffset(false, 0, 150)
         swipeRefresh.setOnRefreshListener {
+            isPageLoading = true
             viewModel.fetchApodsList()
         }
         collectSingleSharedFlow(viewModel.progressIndicator) {
             swipeRefresh.isRefreshing = it
         }
 
-        val apodsRecyclerView = binding.apodsItemsList
-        apodsRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        val apodsAdapter = ApodsAdapter()
+        val apodsRecyclerView = binding.apodsRecyclerView
+        val layoutManager = LinearLayoutManager(requireActivity())
+        apodsRecyclerView.layoutManager = layoutManager
+        val apodsAdapter = ApodsAdapter(requireContext().resources.displayMetrics)
         apodsRecyclerView.adapter = apodsAdapter
+
+        apodsRecyclerView.setOnScrollChangeListener { _, _, _, _, _ ->
+            val position = layoutManager.findLastVisibleItemPosition()
+            viewModel.apodItems.value?.let {
+                fetchNextApodsPage(position, apodsAdapter.itemsPerRow, it.size)
+            }
+        }
 
         val apodNoDataText: TextView = binding.apodsNoData
         viewModel.apodItems.observe(viewLifecycleOwner) {
@@ -78,8 +95,9 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
             apodNoDataText.showView(isApodsListEmpty)
             apodsRecyclerView.showView(!isApodsListEmpty)
             if (!isApodsListEmpty) {
-                apodsAdapter.submitList(it)
+                apodsAdapter.submitSourceList(it)
             }
+            isPageLoading = false
         }
         return root
     }
@@ -91,5 +109,25 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
 
     companion object {
         var isFirstLaunch = true
+    }
+
+    private fun fetchNextApodsPage(position: Int, itemsPerRow: Int, listSize: Int) {
+        if (position >= (listSize / itemsPerRow - PAGE_SIZE / itemsPerRow - 1) && !isPageLoading) {
+            Log.e("Scrolling", "reached position $position")
+            viewModel.fetchApodsList(false)
+            isPageLoading = true
+        }
+    }
+
+    private fun measureView(view: View, result: (Int, Int) -> Unit) {
+        val viewTreeObserver = view.viewTreeObserver
+        if (viewTreeObserver.isAlive) {
+            viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    requireView().viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    result(view.width, view.height)
+                }
+            })
+        }
     }
 }

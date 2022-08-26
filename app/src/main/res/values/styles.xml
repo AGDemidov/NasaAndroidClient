@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ApodShapeableImageView" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">3%</item>
+    </style>
+
+    <style name="NeoItemBase">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="NeoItemTitle" parent="NeoItemBase">
+        <item name="android:textSize">17sp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:textColor">?secondaryTextColor</item>
+    </style>
+
+    <style name="NeoItemValue" parent="NeoItemBase">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">?primaryTextColor</item>
+    </style>
+
+    <style name="NeoPageButton" parent="@android:style/Widget.Holo.Light.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">?primaryTextColor</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+</resources>

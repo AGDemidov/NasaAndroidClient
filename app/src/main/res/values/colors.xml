@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <color name="black_title">#FF333333</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="light_grey">#FFAAAAAA</color>
-    <color name="dark_grey">#FF888888</color>
+    <color name="white_title">#FFEEEEEE</color>
+    <color name="light_grey">#FFBBBBBB</color>
+    <color name="dark_grey">#FF777777</color>
+    <color name="hazardous_color">#FFFF0000</color>
+    <color name="not_hazardous_color">#FF22CC22</color>
 </resources>

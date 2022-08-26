@@ -9,9 +9,10 @@ class ApiErrorResponse<T>(val title: String, val errorMessage: String) : ErrorRe
 class NoNetworkResponse<T> : ErrorResponse<T>()
 class CancelledResponse<T> : ErrorResponse<T>()
 
-open class ErrorResponse<T> : ApiResponse<T>()
+sealed class ErrorResponse<T> : ApiResponse<T>()
 sealed class ApiResponse<T> {
     companion object {
+        @Suppress("UNCHECKED_CAST")
         fun <T> createResponse(response: Response<T>): ApiResponse<T> {
             return when (val code = response.code()) {
                 in 200..299 -> {

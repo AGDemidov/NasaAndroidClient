@@ -5,36 +5,128 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/name"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="2dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="?primaryTextColor"
-        android:textSize="16sp"
-        android:textStyle="normal"
-        tools:text="Asteroid" />
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/url"
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="16dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_down" />
+
+        <TextView
+            android:id="@+id/neoName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingVertical="16dp"
+            android:textColor="?primaryTextColor"
+            android:textSize="17sp"
+            android:textStyle="normal"
+            tools:text="Asteroid" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/extendedNeoData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="2dp"
-        android:autoLink="web"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="?secondaryTextColor"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        tools:text="https://someUrl.com/blablabl" />
+        android:layout_marginHorizontal="14dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/neo_card_bg"
+        android:padding="4dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/magnitudeTitle"
+            style="@style/NeoItemTitle"
+            android:layout_marginEnd="36dp"
+            android:text="@string/absolute_magnitude" />
+
+        <TextView
+            android:id="@+id/magnitudeValue"
+            style="@style/NeoItemValue"
+            android:layout_alignBaseline="@id/magnitudeTitle"
+            android:layout_toEndOf="@id/magnitudeTitle"
+            tools:text="17.53" />
+
+        <TextView
+            android:id="@+id/estimatedDiameterTitle"
+            style="@style/NeoItemTitle"
+            android:layout_below="@id/magnitudeTitle"
+            android:text="@string/estimated_diameter" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/estimatedDiameterTitle"
+            android:layout_marginBottom="4dp"
+            android:background="@color/light_grey" />
+
+        <TextView
+            android:id="@+id/diameterMinTitle"
+            style="@style/NeoItemTitle"
+            android:layout_below="@id/divider"
+            android:layout_alignEnd="@id/magnitudeTitle"
+            android:text="@string/min" />
+
+        <TextView
+            android:id="@+id/diameterMinValue"
+            style="@style/NeoItemValue"
+            android:layout_below="@id/divider"
+            android:layout_alignBaseline="@id/diameterMinTitle"
+            android:layout_toEndOf="@id/magnitudeTitle"
+            tools:text="829.0008514522" />
+
+        <TextView
+            android:id="@+id/diameterMaxTitle"
+            style="@style/NeoItemTitle"
+            android:layout_below="@id/diameterMinTitle"
+            android:layout_alignEnd="@id/magnitudeTitle"
+            android:text="@string/max" />
+
+        <TextView
+            android:id="@+id/diameterMaxValue"
+            style="@style/NeoItemValue"
+            android:layout_below="@id/diameterMinValue"
+            android:layout_alignBaseline="@id/diameterMaxTitle"
+            android:layout_toEndOf="@id/magnitudeTitle"
+            tools:text="1853.7022572523" />
+
+        <TextView
+            android:id="@+id/isHazardousTitle"
+            style="@style/NeoItemTitle"
+            android:layout_below="@id/diameterMaxTitle"
+            android:layout_alignEnd="@id/magnitudeTitle"
+            android:text="@string/potentially_hazardous_object"
+            android:textColor="#00CC00" />
+
+        <TextView
+            android:id="@+id/isHazardousValue"
+            style="@style/NeoItemTitle"
+            android:layout_below="@id/diameterMaxTitle"
+            android:layout_alignBaseline="@id/isHazardousTitle"
+            android:layout_toEndOf="@id/magnitudeTitle"
+            android:textColor="#00CC00"
+            tools:text="No" />
+
+        <Button
+            android:id="@+id/open_web_page"
+            style="@style/NeoPageButton"
+            android:layout_below="@id/isHazardousTitle"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="4dp"
+            android:text="@string/open_neo_page" />
+    </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="4dp"
         android:background="@color/light_grey" />
 </LinearLayout>

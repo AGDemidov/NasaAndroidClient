@@ -15,6 +15,23 @@
         android:id="@+id/nav_neo"
         android:name="com.agdemidov.nasaclient.ui.neo.NeoFragment"
         android:label="@string/menu_near_earth_objects"
-        tools:layout="@layout/fragment_neo" />
+        tools:layout="@layout/fragment_neo" >
+        <action
+            android:id="@+id/action_nav_neo_to_nav_new_web_page"
+            app:destination="@id/nav_new_web_page"
+            app:launchSingleTop="false"
+            app:popUpTo="@id/nav_new_web_page" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_new_web_page"
+        android:name="com.agdemidov.nasaclient.ui.neo.NeoWebPageFragment"
+        android:label="@string/nasa_web_page"
+        tools:layout="@layout/fragment_neo_web_page">
+        <argument
+            android:name="neoPageUrl"
+            app:argType="string"
+            app:nullable="false" />
+    </fragment>
 
 </navigation>

@@ -9,7 +9,9 @@ object DateGetter {
         try {
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.DAY_OF_YEAR, offsetInDays)
-            val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(calendar.time)
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+            formatter.timeZone = TimeZone.getTimeZone("GMT")
+            val date = formatter.format(calendar.time)
             calendar.add(Calendar.DAY_OF_YEAR, -offsetInDays)
             date
         } catch (ex: Exception) {

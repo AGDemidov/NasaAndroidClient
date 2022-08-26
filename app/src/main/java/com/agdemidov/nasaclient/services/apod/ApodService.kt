@@ -8,23 +8,35 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ApodService private constructor(private val repository: ApodRepository) {
-    suspend fun fetchApodsList(): List<ApodModel> = withContext(Dispatchers.IO) {
-        lateinit var response: List<ApodModel>
-        return@withContext when (val apiResponse = repository.fetchApodsList()) {
+
+    private var curPage: Int = 0
+    private var apodItemsList: MutableList<ApodModel> = mutableListOf()
+
+    suspend fun fetchApods(isPTR: Boolean): List<ApodModel> = withContext(Dispatchers.IO) {
+        if (isPTR) {
+            curPage = 0
+        }
+        return@withContext when (val apiResponse = repository.fetchApodsList(curPage)) {
             is SuccessResponse -> {
                 runCatching { ApodMapper.mapApodsList(apiResponse.body) }
-                    .onSuccess { response = it }
+                    .onSuccess {
+                        if (isPTR) {
+                            apodItemsList = it.toMutableList()
+                        } else {
+                            apodItemsList.addAll(it)
+                        }
+                        curPage++
+                    }
                     .onFailure {
                         throw DataConvertServiceException(
                             it::class.simpleName ?: "",
                             it.message ?: ""
                         )
                     }
-                response.sortedByDescending { it.date }
+                apodItemsList.sortedByDescending { it.date }
             }
             is ErrorResponse -> {
                 ErrorResponseProcessor.processError(apiResponse)
-                response
             }
         }
     }

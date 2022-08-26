@@ -13,10 +13,10 @@ class ApodsViewModel(private val apodService: ApodService) : BaseViewModel() {
 
     private val _apodItems = MutableLiveData<List<ApodModel>>()
 
-    fun fetchApodsList() =
+    fun fetchApodsList(isPTR: Boolean = true) =
         viewModelScope.launch(Dispatchers.Main) {
-            showProgressIndicator(true)
-            runCatching { apodService.fetchApodsList() }
+            showProgressIndicator(isPTR)
+            runCatching { apodService.fetchApods(isPTR) }
                 .onSuccess { _apodItems.value = it }
                 .onFailure { onRequestFailure(it) }
             showProgressIndicator(false)
