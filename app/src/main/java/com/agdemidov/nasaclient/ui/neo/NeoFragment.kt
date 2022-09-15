@@ -1,54 +1,31 @@
 package com.agdemidov.nasaclient.ui.neo
 
-import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.agdemidov.nasaclient.databinding.FragmentNeoBinding
-import com.agdemidov.nasaclient.services.neo.NeoService
 import com.agdemidov.nasaclient.ui.BaseFragment
 import com.agdemidov.nasaclient.ui.ViewModelsFactory
 import com.agdemidov.nasaclient.utils.Extensions.showView
+import com.agdemidov.nasaclient.utils.PROGRESS_END_POS
+import com.agdemidov.nasaclient.utils.PROGRESS_START_POS
 
 class NeoFragment : BaseFragment<NeoViewModel>() {
+
+    private val TAG = NeoFragment::class.simpleName
 
     private var _binding: FragmentNeoBinding? = null
     private val binding
         get() = _binding!!
 
     override val viewModel: NeoViewModel by viewModels {
-        ViewModelsFactory(NeoService.instance)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        lifecycle.addObserver(lifecycleEventObserver)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        lifecycle.removeObserver(lifecycleEventObserver)
-    }
-
-    private val lifecycleEventObserver = LifecycleEventObserver { _, event ->
-        when (event) {
-            Lifecycle.Event.ON_START -> onFragmentStartEvent()
-            else -> {}
-        }
-    }
-
-    private fun onFragmentStartEvent() {
-        if (isFirstLaunch) {
-            viewModel.fetchTodayNeoList()
-            isFirstLaunch = false
-        }
+        ViewModelsFactory.provideNeoViewModel()
     }
 
     var swipeRefresh: SwipeRefreshLayout? = null
@@ -62,12 +39,19 @@ class NeoFragment : BaseFragment<NeoViewModel>() {
         _binding = FragmentNeoBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        viewModel.isFirstLaunch.observe(viewLifecycleOwner) {
+            if (it) {
+                Log.i(TAG, "Load cached neo data from preferences or try to fetch new")
+                viewModel.fetchCachedTodayNeoListOnStart()
+            }
+        }
+
         swipeRefresh = binding.swipeRefresh
-        swipeRefresh?.setProgressViewOffset(false, 0, 150)
+        swipeRefresh?.setProgressViewOffset(false, PROGRESS_START_POS, PROGRESS_END_POS)
         swipeRefresh?.setOnRefreshListener {
             viewModel.fetchTodayNeoList()
         }
-        collectSingleSharedFlow(viewModel.progressIndicator) {
+        collectSharedFlow(viewModel.progressIndicator) {
             swipeRefresh?.isRefreshing = it
         }
 
@@ -94,7 +78,7 @@ class NeoFragment : BaseFragment<NeoViewModel>() {
 
         val neoNoDataText: TextView = binding.neoNoData
 
-        collectSingleSharedFlow(viewModel.neoData) { it ->
+        viewModel.neoData.observe(viewLifecycleOwner) {
             val isTodayNeoListEmpty = it.neoModelsMap.isEmpty()
 
             neoPagerView.showView(!isTodayNeoListEmpty)
@@ -109,9 +93,5 @@ class NeoFragment : BaseFragment<NeoViewModel>() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        var isFirstLaunch = true
     }
 }

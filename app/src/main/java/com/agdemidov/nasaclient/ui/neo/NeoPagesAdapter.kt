@@ -91,4 +91,3 @@ class NeoPagesAdapter(val context: Context, val action: OnTodayPageCreated) :
         }
     }
 }
-

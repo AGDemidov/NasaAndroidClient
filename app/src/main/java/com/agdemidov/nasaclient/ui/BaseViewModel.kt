@@ -1,5 +1,6 @@
 package com.agdemidov.nasaclient.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agdemidov.nasaclient.R
@@ -44,7 +45,8 @@ abstract class BaseViewModel : ViewModel() {
         else -> {}
     }
 
-    override fun onCleared() =
+    override fun onCleared() {
+        Log.i(BaseViewModel::class.simpleName, "BaseViewModel->onCleared")
         viewModelScope.coroutineContext.cancelChildren()
-
+    }
 }

@@ -19,7 +19,7 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        collectSingleSharedFlow(viewModel.alertEvent) {
+        collectSharedFlow(viewModel.alertEvent) {
             AlertDialog.Builder(view.context)
                 .setTitle(it.first)
                 .setMessage(it.second)
@@ -28,11 +28,11 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment() {
                 .show()
         }
 
-        collectSingleSharedFlow(viewModel.snackBarEvent) {
+        collectSharedFlow(viewModel.snackBarEvent) {
             Snackbar.make(view, it, Snackbar.LENGTH_LONG).show()
         }
 
-        collectSingleSharedFlow(viewModel.toastEvent) {
+        collectSharedFlow(viewModel.toastEvent) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (toast == null) {
                     toast = Toast.makeText(context, it, Toast.LENGTH_LONG)
@@ -50,7 +50,7 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment() {
         }
     }
 
-    fun <T> collectSingleSharedFlow(src: SharedFlow<T>, callback: (type: T) -> Unit) {
+    fun <T> collectSharedFlow(src: SharedFlow<T>, callback: (type: T) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             src.collect {
                 callback(it)

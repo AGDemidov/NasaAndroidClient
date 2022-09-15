@@ -10,6 +10,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.agdemidov.nasaclient.databinding.ActivityMainBinding
+import com.agdemidov.nasaclient.utils.AppPreferences
 import com.agdemidov.nasaclient.utils.NetworkManager
 
 class MainActivity : AppCompatActivity() {
@@ -23,6 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        NetworkManager.initialize(applicationContext)
+        AppPreferences.initialize(applicationContext)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -40,8 +43,6 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
-        NetworkManager.initialize(this.applicationContext)
     }
 
     override fun onSupportNavigateUp() =

@@ -3,23 +3,23 @@ package com.agdemidov.nasaclient.repositories.apod
 import com.agdemidov.nasaclient.httpclient.RetrofitClient
 import com.agdemidov.nasaclient.repositories.ApiResponse
 import com.agdemidov.nasaclient.repositories.NoNetworkResponse
-import com.agdemidov.nasaclient.repositories.apod.api.ApodApi
+import com.agdemidov.nasaclient.repositories.apod.api.ApodApiInterface
 import com.agdemidov.nasaclient.repositories.apod.dto.ApodDto
-import com.agdemidov.nasaclient.utils.Constants.PAGE_SIZE
-import com.agdemidov.nasaclient.utils.DateGetter.getDateWithOffset
 import com.agdemidov.nasaclient.utils.NetworkManager
 
 import retrofit2.awaitResponse
 
-class ApodRepository {
-    suspend fun fetchApodsList(page: Int): ApiResponse<List<ApodDto>> =
+class ApodRepository private constructor(
+    private val apodApi: ApodApiInterface
+) {
+    suspend fun fetchApodsList(startDate: String, endDate: String): ApiResponse<List<ApodDto>> =
         try {
             if (!NetworkManager.isNetworkAvailable) {
                 NoNetworkResponse()
             } else {
-                val response = apodApiEndpoints.fetchApodsPage(
-                    startDate = getDateWithOffset(-PAGE_SIZE * (1 + page)),
-                    endDate = getDateWithOffset(-(PAGE_SIZE + 1) * page)
+                val response = apodApi.fetchApodsPage(
+                    startDate = startDate,
+                    endDate = endDate
                 ).awaitResponse()
                 ApiResponse.createResponse(response)
             }
@@ -32,17 +32,27 @@ class ApodRepository {
         if (!NetworkManager.isNetworkAvailable) {
             result = NoNetworkResponse()
         }
-        kotlin.runCatching { apodApiEndpoints.fetchApod().awaitResponse() }
+        runCatching { apodApi.fetchApod().awaitResponse() }
             .onSuccess { result = ApiResponse.createResponse(it) }
             .onFailure { result = ApiResponse.createError(it) }
         return result
     }
 
     companion object {
-        val apodApiEndpoints: ApodApi by lazy {
-            RetrofitClient.clientInstance
+        @Volatile
+        private var instance: ApodRepository? = null
+
+        private val apodHttpRequestsApi: ApodApiInterface by lazy {
+            RetrofitClient.builderInstance
                 .build()
-                .create(ApodApi::class.java)
+                .create(ApodApiInterface::class.java)
         }
+
+        fun getInstance(): ApodRepository =
+            instance ?: synchronized(this) {
+                instance ?: ApodRepository(
+                    apodHttpRequestsApi
+                ).also { instance = it }
+            }
     }
 }

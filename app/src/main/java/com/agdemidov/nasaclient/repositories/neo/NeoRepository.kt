@@ -3,14 +3,14 @@ package com.agdemidov.nasaclient.repositories.neo
 import com.agdemidov.nasaclient.httpclient.RetrofitClient
 import com.agdemidov.nasaclient.repositories.ApiResponse
 import com.agdemidov.nasaclient.repositories.NoNetworkResponse
-import com.agdemidov.nasaclient.repositories.neo.api.NeoApi
+import com.agdemidov.nasaclient.repositories.neo.api.NeoApiInterface
 import com.agdemidov.nasaclient.repositories.neo.dto.NeoDto
 import com.agdemidov.nasaclient.utils.DateGetter.getToday
 import com.agdemidov.nasaclient.utils.NetworkManager
 import retrofit2.Response
 import retrofit2.awaitResponse
 
-class NeoRepository {
+class NeoRepository private constructor(private val neoApi: NeoApiInterface) {
     suspend fun fetchNeoObjects(
         startDate: String = getToday(),
         endDate: String = getToday(),
@@ -19,7 +19,7 @@ class NeoRepository {
             if (!NetworkManager.isNetworkAvailable) {
                 NoNetworkResponse()
             } else {
-                val response: Response<NeoDto> = neoApiEndPoints.fetchTodayNeoObjects(
+                val response: Response<NeoDto> = neoApi.fetchTodayNeoObjects(
                     startDate = startDate,
                     endDate = endDate
                 ).awaitResponse()
@@ -31,10 +31,20 @@ class NeoRepository {
         }
 
     companion object {
-        val neoApiEndPoints: NeoApi by lazy {
-            RetrofitClient.clientInstance
+        @Volatile
+        private var instance: NeoRepository? = null
+
+        private val neoHttpRequestsApi: NeoApiInterface by lazy {
+            RetrofitClient.builderInstance
                 .build()
-                .create(NeoApi::class.java)
+                .create(NeoApiInterface::class.java)
         }
+
+        fun getInstance(): NeoRepository =
+            instance ?: synchronized(this) {
+                instance ?: NeoRepository(
+                    neoHttpRequestsApi
+                ).also { instance = it }
+            }
     }
 }

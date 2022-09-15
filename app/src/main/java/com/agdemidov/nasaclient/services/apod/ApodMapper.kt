@@ -7,18 +7,24 @@ object ApodMapper {
     fun mapApodsList(items: List<ApodDto>): List<ApodModel> {
         return items.map {
             ApodModel(
-                it.title ?: "N/A",
-                it.url ?: "N/A",
-                it.date ?: "N/A",
+                title = it.title,
+                url = it.url,
+                date = it.date,
+                explanation = it.explanation,
+                hdUrl = it.hdurl,
+                mediaType = it.mediaType
             )
         }
     }
 
-    fun mapApod(apod: ApodDto) = apod.run {
+    fun mapSingleApod(apod: ApodDto) = apod.run {
         ApodModel(
-            title ?: "N/A",
-            url ?: "N/A",
-            date ?: "N/A"
+            title = title,
+            url = url,
+            date = date,
+            explanation = explanation,
+            hdUrl = hdurl,
+            mediaType = mediaType
         )
     }
 }

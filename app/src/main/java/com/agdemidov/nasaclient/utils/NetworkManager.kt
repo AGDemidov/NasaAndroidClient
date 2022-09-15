@@ -9,21 +9,23 @@ object NetworkManager {
         @Synchronized get
         @Synchronized set
 
-    private lateinit var connectivityManager: ConnectivityManager
+    private var connectivityManager: ConnectivityManager? = null
 
-    fun initialize(applicationContext: Context) {
-        connectivityManager =
-            applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    fun initialize(context: Context) {
+        if (connectivityManager == null) {
+            connectivityManager =
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        connectivityManager.registerDefaultNetworkCallback(object :
-            ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                isNetworkAvailable = true
-            }
+            connectivityManager?.registerDefaultNetworkCallback(object :
+                ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    isNetworkAvailable = true
+                }
 
-            override fun onLost(network: Network) {
-                isNetworkAvailable = false
-            }
-        })
+                override fun onLost(network: Network) {
+                    isNetworkAvailable = false
+                }
+            })
+        }
     }
 }

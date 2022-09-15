@@ -88,4 +88,3 @@ class NeoDayPageAdapter(private val action: OnItemClicked) :
         fun allItemsExpanded(allItemsExpanded: Boolean)
     }
 }
-
