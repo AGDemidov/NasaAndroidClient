@@ -1,14 +1,18 @@
 package com.agdemidov.nasaclient.ui.neo
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
+import com.agdemidov.nasaclient.R
 import com.agdemidov.nasaclient.databinding.FragmentNeoBinding
 import com.agdemidov.nasaclient.ui.BaseFragment
 import com.agdemidov.nasaclient.ui.ViewModelsFactory
@@ -79,12 +83,16 @@ class NeoFragment : BaseFragment<NeoViewModel>() {
         val neoNoDataText: TextView = binding.neoNoData
 
         viewModel.neoData.observe(viewLifecycleOwner) {
-            val isTodayNeoListEmpty = it.neoModelsMap.isEmpty()
-
-            neoPagerView.showView(!isTodayNeoListEmpty)
-            neoNoDataText.showView(isTodayNeoListEmpty)
-            if (!isTodayNeoListEmpty) {
-                neoAdapter.submitData(it.neoModelsMap)
+            neoNoDataText.showView(!neoPagerView.isVisible)
+            if (!it.neoModelsMap.isEmpty()) {
+                neoNoDataText.text = getText(R.string.loading)
+                Handler(Looper.getMainLooper()).postDelayed(
+                    {
+                        neoNoDataText.showView(false)
+                        neoPagerView.showView(true)
+                        neoAdapter.submitData(it.neoModelsMap)
+                    }, 300
+                )
             }
         }
         return root
