@@ -10,7 +10,7 @@ import com.agdemidov.nasaclient.databinding.NeoItemViewHolderBinding
 import com.agdemidov.nasaclient.models.NeoModel
 import com.agdemidov.nasaclient.utils.Extensions.showView
 
-class NeoDayPageAdapter(private val action: OnItemClicked) :
+class NeoDayPageAdapter(private val action: DayPageEventsListener) :
     RecyclerView.Adapter<NeoDayPageAdapter.NeoItemViewHolder>() {
 
     private var neoTodayItemsList: List<NeoModel> = mutableListOf()
@@ -83,7 +83,7 @@ class NeoDayPageAdapter(private val action: OnItemClicked) :
 
     override fun getItemCount() = neoTodayItemsList.size
 
-    interface OnItemClicked {
+    interface DayPageEventsListener {
         fun onClick(url: String)
         fun allItemsExpanded(allItemsExpanded: Boolean)
     }

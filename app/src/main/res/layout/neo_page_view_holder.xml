@@ -25,6 +25,7 @@
             android:textColor="?primaryTextColor"
             android:textSize="19sp"
             app:layout_constraintBaseline_toBaselineOf="@+id/expandAll"
+            app:layout_constraintEnd_toStartOf="@+id/expandAll"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button

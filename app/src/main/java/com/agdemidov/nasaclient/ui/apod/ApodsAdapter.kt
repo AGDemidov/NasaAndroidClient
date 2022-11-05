@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.agdemidov.nasaclient.R
 import com.agdemidov.nasaclient.databinding.ApodCardPlaceHolderBinding
@@ -49,6 +50,11 @@ class ApodsAdapter(private val imageSideSize: Int) :
     override fun onBindViewHolder(holder: ApodItemViewHolder, position: Int) {
         holder.binding.apodImageName.text = apodItemsList[position].title
         holder.binding.apodImageDate.text = apodItemsList[position].date
+        holder.binding.apodImagePlaceholder.setOnClickListener {
+            findNavController(holder.binding.root).navigate(
+                ApodsFragmentDirections.actionNavApodToApodCardViewerFragment(position)
+            )
+        }
         apodItemsList[position].url?.let {
             loadApodImage(
                 holder.binding.apodGalleryItem, holder.binding.apodImagePlaceholder, it
@@ -67,8 +73,7 @@ class ApodsAdapter(private val imageSideSize: Int) :
             .with(rootView.context)
             .load(url)
             .centerCrop()
-            .placeholder(R.drawable.nasa_logo)
-            .error(R.drawable.nasa_logo)
-            .into(targetImageView);
+            .error(R.drawable.nasa_logo_grey)
+            .into(targetImageView)
     }
 }

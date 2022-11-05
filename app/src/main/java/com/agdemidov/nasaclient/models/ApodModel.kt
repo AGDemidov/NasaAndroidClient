@@ -1,11 +1,8 @@
 package com.agdemidov.nasaclient.models
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
+import androidx.room.*
 
-@Entity(tableName = "apod_models")
+@Entity(tableName = "apod_models", indices = [Index(value = ["apod_url"], unique = true)])
 data class ApodModel(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
@@ -15,7 +12,7 @@ data class ApodModel(
     var title: String? = null,
     @ColumnInfo(name = "apod_date")
     var date: String? = null,
-    @Ignore
+    @ColumnInfo(name = "apod_explanation")
     var explanation: String? = null,
     @Ignore
     var hdUrl: String? = null,

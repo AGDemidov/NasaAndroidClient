@@ -41,19 +41,18 @@ class NeoPagesAdapter(val context: Context, val action: OnTodayPageCreated) :
     }
 
     override fun onBindViewHolder(holder: NeoPageViewHolder, position: Int) {
-        val dayResId: Int = when (neoPagesMap[position].first) {
-            getYesterday() -> R.string.yesterday
-            getToday() -> R.string.today
-            getTomorrow() -> R.string.tomorrow
-            else -> R.string.date_is
-        }
-
         holder.binding.neoDate.text =
-            context.resources.getString(dayResId, neoPagesMap[position].first)
+            when (neoPagesMap[position].first) {
+                getYesterday() -> context.resources.getString(R.string.yesterday)
+                getToday() -> context.resources.getString(R.string.today)
+                getTomorrow() -> context.resources.getString(R.string.tomorrow)
+                else -> context.resources.getString(R.string.date_is, neoPagesMap[position].first)
+            }
+
         val neoDayAdapter = holder.binding.neoDayItems
         neoDayAdapter.layoutManager = LinearLayoutManager(context)
         val neoDayPageAdapter = NeoDayPageAdapter(
-            object : NeoDayPageAdapter.OnItemClicked {
+            object : NeoDayPageAdapter.DayPageEventsListener {
                 override fun onClick(url: String) {
                     findNavController(holder.binding.root).navigate(
                         NeoFragmentDirections.actionNavNeoToNavNewWebPage(url)
