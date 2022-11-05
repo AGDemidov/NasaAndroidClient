@@ -8,7 +8,7 @@ object ApodMapper {
         return items.map {
             ApodModel(
                 title = it.title,
-                url = it.url,
+                url = it.url?:"",
                 date = it.date,
                 explanation = it.explanation,
                 hdUrl = it.hdurl,
@@ -20,7 +20,7 @@ object ApodMapper {
     fun mapSingleApod(apod: ApodDto) = apod.run {
         ApodModel(
             title = title,
-            url = url,
+            url = url?:"",
             date = date,
             explanation = explanation,
             hdUrl = hdurl,

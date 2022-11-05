@@ -10,6 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import com.agdemidov.nasaclient.R
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 abstract class BaseFragment<T : BaseViewModel> : Fragment() {
     abstract val viewModel: T
@@ -50,7 +52,10 @@ abstract class BaseFragment<T : BaseViewModel> : Fragment() {
         }
     }
 
-    fun <T> collectSharedFlow(src: SharedFlow<T>, callback: (type: T) -> Unit) {
+    fun <T> collectStateFlow(src: StateFlow<T>, callback: (type: T) -> Unit) =
+        collectSharedFlow(src, callback)
+
+    private fun <T> collectSharedFlow(src: SharedFlow<T>, callback: (type: T) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             src.collect {
                 callback(it)

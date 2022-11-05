@@ -2,17 +2,17 @@ package com.agdemidov.nasaclient.ui.apod
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.TextView
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
+import com.agdemidov.nasaclient.R
 import com.agdemidov.nasaclient.databinding.FragmentApodBinding
 import com.agdemidov.nasaclient.ui.BaseFragment
 import com.agdemidov.nasaclient.ui.ViewModelsFactory
@@ -25,16 +25,14 @@ import com.agdemidov.nasaclient.utils.PROGRESS_START_POS
 class ApodsFragment : BaseFragment<ApodsViewModel>() {
 
     private val TAG = ApodsFragment::class.simpleName
-    private val SCROLL_POSITION_TAG = "${ApodsFragment::class.simpleName}_SCROLL_POSITION"
 
     private var _binding: FragmentApodBinding? = null
     private val binding
         get() = _binding!!
 
-    private var isPageLoading = false
-    private var storedScrollPosition = -1;
+    var subtitle: TextView? = null
 
-    override val viewModel: ApodsViewModel by viewModels {
+    override val viewModel: ApodsViewModel by activityViewModels {
         ViewModelsFactory.provideApodViewModel(requireActivity())
     }
 
@@ -50,22 +48,13 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
 
     private val lifecycleEventObserver = LifecycleEventObserver { _, event ->
         when (event) {
-            Lifecycle.Event.ON_CREATE -> {
-                arguments?.let {
-                    val position = it.getInt(SCROLL_POSITION_TAG, -1)
-                    if (position > 0) {
-                        storedScrollPosition = position
-                    }
-                    Log.i(TAG, "${event.name} restored scroll position $storedScrollPosition")
+            Lifecycle.Event.ON_START -> {
+                if (subtitle == null) {
+                    subtitle = activity?.findViewById(R.id.horizontal_subtitle)
                 }
+                subtitle?.showView(true)
             }
-            Lifecycle.Event.ON_PAUSE -> {
-                Log.i(TAG, "${event.name} stored scroll position $storedScrollPosition")
-                val args = Bundle()
-                args.putInt(SCROLL_POSITION_TAG, storedScrollPosition)
-                storedScrollPosition = -1
-                arguments = args
-            }
+            Lifecycle.Event.ON_STOP -> subtitle?.showView(false)
             else -> {}
         }
     }
@@ -76,7 +65,6 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentApodBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
         val metrics = requireActivity().resources.displayMetrics
         val itemsPerRow = when ((metrics.widthPixels / metrics.density).toInt()) {
@@ -85,20 +73,13 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
             else -> 4
         }
 
-        collectSharedFlow(viewModel.isFirstLaunch) {
-            if (it) {
-                Log.i(TAG, "Load cached data from DB or try to fetch new")
-                viewModel.fetchCachedApodsOnStart()
-            }
-        }
-
         val swipeRefresh = binding.swipeRefresh
         swipeRefresh.setProgressViewOffset(false, PROGRESS_START_POS, PROGRESS_END_POS)
         swipeRefresh.setOnRefreshListener {
-            isPageLoading = true
             viewModel.fetchApodsList()
         }
-        collectSharedFlow(viewModel.progressIndicator) {
+
+        collectStateFlow(viewModel.topProgressIndicator) {
             swipeRefresh.isRefreshing = it
         }
 
@@ -116,27 +97,33 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
         apodsRecyclerView.adapter = apodsAdapter
 
         apodsRecyclerView.setOnScrollChangeListener { _, _, _, _, _ ->
-            val position = layoutManager.findLastVisibleItemPosition()
-            storedScrollPosition = layoutManager.findFirstVisibleItemPosition()
-            collectSharedFlow(viewModel.apodItems) {
-                fetchNextApodsPageOnScroll(position, it.size)
-            }
+            val firstPosition = layoutManager.findFirstVisibleItemPosition()
+            val lastPosition = layoutManager.findLastVisibleItemPosition()
+            val apodsListSize = viewModel.apodItems.value.size
+            viewModel.setScrollPosition((firstPosition + lastPosition) / 2)
+            changeTitle(firstPosition + 1, lastPosition + 1, apodsListSize)
+            tryToFetchNextApodsPage(lastPosition, apodsListSize)
         }
-        if (storedScrollPosition > 0) {
-            apodsRecyclerView.smoothScrollToPosition(storedScrollPosition)
+
+        if (viewModel.storedScrollPosition > 0) {
+            apodsRecyclerView.smoothScrollToPosition(viewModel.storedScrollPosition)
         }
 
         val apodNoDataText: TextView = binding.apodsNoData
-        collectSharedFlow(viewModel.apodItems) {
+        collectStateFlow(viewModel.apodItems) {
             val isApodsListEmpty = it.isEmpty()
             apodNoDataText.showView(isApodsListEmpty)
             apodsRecyclerView.showView(!isApodsListEmpty)
             if (!isApodsListEmpty) {
                 apodsAdapter.submitSourceList(it)
+                changeTitle(
+                    layoutManager.findFirstVisibleItemPosition() + 1,
+                    layoutManager.findLastVisibleItemPosition() + 1,
+                    viewModel.apodItems.value.size
+                )
             }
-            isPageLoading = false
         }
-        return root
+        return binding.root
     }
 
     override fun onDestroyView() {
@@ -144,12 +131,17 @@ class ApodsFragment : BaseFragment<ApodsViewModel>() {
         _binding = null
     }
 
-    private fun fetchNextApodsPageOnScroll(position: Int, listSize: Int) {
-        if (position >= (listSize - PAGE_SIZE / 2 - 1) &&
-            !isPageLoading && NetworkManager.isNetworkAvailable
-        ) {
-            Log.i(TAG, "reached position $position below the scroller, fetch next page")
-            isPageLoading = true
+    private fun changeTitle(firstPosition: Int, lastPosition: Int, loadedListSize: Int) {
+        subtitle?.text = activity?.resources?.getString(
+            R.string.apod_title_info_part,
+            firstPosition,
+            lastPosition,
+            loadedListSize
+        ) ?: "N/A"
+    }
+
+    private fun tryToFetchNextApodsPage(position: Int, listSize: Int) {
+        if (NetworkManager.isNetworkAvailable && position >= (listSize - PAGE_SIZE / 8 - 1)) {
             viewModel.fetchApodsList(false)
         }
     }

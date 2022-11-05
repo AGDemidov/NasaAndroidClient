@@ -1,33 +1,32 @@
 package com.agdemidov.nasaclient.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agdemidov.nasaclient.R
 import com.agdemidov.nasaclient.services.*
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.*
 import java.util.zip.DataFormatException
 
 abstract class BaseViewModel : ViewModel() {
 
-    private val _progressIndicator = MutableSharedFlow<Boolean>(replay = 1)
+    private val _topProgressIndicator = MutableStateFlow(false)
+    private val _alertEvent = MutableSharedFlow<Pair<String, String>>(replay = 0)
     private val _toastEvent = MutableSharedFlow<String>(replay = 0)
     private val _snackBarEvent = MutableSharedFlow<Int>(replay = 0)
-    private val _alertEvent = MutableSharedFlow<Pair<String, String>>(replay = 0)
 
-    val progressIndicator: SharedFlow<Boolean>
-        get() = _progressIndicator
+
+    val topProgressIndicator: StateFlow<Boolean>
+        get() = _topProgressIndicator
     val alertEvent: SharedFlow<Pair<String, String>>
         get() = _alertEvent
-    val snackBarEvent: SharedFlow<Int>
-        get() = _snackBarEvent
     val toastEvent: SharedFlow<String>
         get() = _toastEvent
+    val snackBarEvent: SharedFlow<Int>
+        get() = _snackBarEvent
 
-    protected suspend fun showProgressIndicator(show: Boolean) {
-        _progressIndicator.emit(show)
+    protected fun showProgressIndicator(show: Boolean) {
+        _topProgressIndicator.value = show
     }
 
     protected suspend fun onRequestFailure(t: Throwable) = when (t) {
@@ -45,8 +44,5 @@ abstract class BaseViewModel : ViewModel() {
         else -> {}
     }
 
-    override fun onCleared() {
-        Log.i(BaseViewModel::class.simpleName, "BaseViewModel->onCleared")
-        viewModelScope.coroutineContext.cancelChildren()
-    }
+    override fun onCleared() = viewModelScope.coroutineContext.cancelChildren()
 }

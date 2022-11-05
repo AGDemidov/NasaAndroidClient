@@ -7,9 +7,9 @@ data class ApodDto(
     val copyright: String? = null,
     @SerializedName("date")
     val date: String? = null,
-    @SerializedName("explanation")
-    val hdurl: String? = null,
     @SerializedName("hdurl")
+    val hdurl: String? = null,
+    @SerializedName("explanation")
     val explanation: String? = null,
     @SerializedName("media_type")
     val mediaType: String? = null,

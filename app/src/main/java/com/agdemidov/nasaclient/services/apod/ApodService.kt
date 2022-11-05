@@ -37,7 +37,9 @@ class ApodService private constructor(
                         if (isPTR) {
                             apodItemsList = it.toMutableList()
                         } else {
-                            apodItemsList.addAll(it)
+                            if(!apodItemsList.containsAll(it)) {
+                                apodItemsList.addAll(it)
+                            }
                         }
                         cacheApods(isPTR, it)
                     }
@@ -56,7 +58,9 @@ class ApodService private constructor(
     }
 
     suspend fun reloadAllApodsFromCache(): List<ApodModel> {
+        apodItemsList.clear()
         apodItemsList.addAll(apodDao.getAll())
+        Log.i(TAG, "reloadAllApodsFromCache: ${apodItemsList.size}")
         return apodItemsList
     }
 

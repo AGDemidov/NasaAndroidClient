@@ -24,10 +24,14 @@
     <string name="expand_all">Expand All</string>
     <string name="collapse_all">Collapse All</string>
     <string name="nasa_web_page">Nasa Web Page</string>
-    <string name="today">Today: %1$s</string>
-    <string name="yesterday">Yesterday: %1$s</string>
-    <string name="tomorrow">Tomorrow: %1$s</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="tomorrow">Tomorrow</string>
     <string name="date_is">Date is: %1$s</string>
     <string name="not_available">N/A</string>
     <string name="loading">Loading…</string>
+    <string name="detailed_apod_text">%1$s\n\n%2$s</string>
+    <string name="apod_title_info_part">%1$d to %2$d of %3$d</string>
+    <string name="apod_card_viewer_hardcoded_title">Image 1 of 1</string>
+    <string name="apod_card_viewer_title">Image %1$d of %2$d</string>
 </resources>
